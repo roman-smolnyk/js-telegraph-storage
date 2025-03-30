@@ -1,8 +1,13 @@
-/**
- * Dumb Cipher (no encryption)
- * @class
- * @implements {BaseCipher}
- */
+class BaseCipher {
+  encrypt(data) {
+    throw new Error("Not implemented");
+  }
+
+  decrypt(data) {
+    throw new Error("Not implemented");
+  }
+}
+
 class DumbCipher extends BaseCipher {
   encrypt(data) {
     return data;
@@ -13,11 +18,6 @@ class DumbCipher extends BaseCipher {
   }
 }
 
-/**
- * Base64 Cipher (encoding only)
- * @class
- * @implements {BaseCipher}
- */
 class Base64Cipher extends BaseCipher {
   encrypt(str) {
     return btoa(new TextEncoder().encode(str).reduce((data, byte) => data + String.fromCharCode(byte), ""));
@@ -99,16 +99,3 @@ class AESCrypto {
     return new TextDecoder().decode(decrypted);
   }
 }
-
-// Example Usage (Simulating Sending to Another User)
-(async () => {
-  const password = "sharedSecret"; // Both users use the same password
-  const sender = new AESCrypto(password);
-  const receiver = new AESCrypto(password);
-
-  const encryptedData = await sender.encrypt("Hello, secure world! ".repeat(50));
-  console.log("Encrypted Data:", encryptedData.length, encryptedData);
-
-  const decryptedText = await receiver.decrypt(encryptedData);
-  console.log("Decrypted Text:", decryptedText.length, decryptedText);
-})();

@@ -94,7 +94,3 @@ class TelegraphStorage {
   };
 }
 
-let storage = new TelegraphStorage();
-await storage.register();
-console.log(storage.telegraph.accessToken);
-console.log(await storage.list());

@@ -10,38 +10,28 @@ class TelAuthorUrlInvalid extends TelegraphError {}
 class TelInvalidRequest extends TelegraphError {}
 class TelInternalError extends TelegraphError {}
 
-parseTelegraphError = (errorText) => {
+const parseTelegraphError = (errorText) => {
   switch (errorText) {
     case "ACCESS_TOKEN_INVALID":
       throw new TelAccessTokenInvalid(errorText);
-      break;
     case "CONTENT_TOO_BIG":
       throw new TelContentTooBig(errorText);
-      break;
     case "TOO_MANY_REQUESTS":
       throw new TelTooManyRequests(errorText);
-      break;
     case "PATH_ALREADY_EXISTS":
       throw new TelPathAlreadyExists(errorText);
-      break;
     case "TITLE_EMPTY":
       throw new TitleEmpty(errorText);
-      break;
     case "CONTENT_EMPTY":
       throw new TelContentEmpty(errorText);
-      break;
     case "AUTHOR_NAME_TOO_LONG":
       throw new TelAuthorNameTooLong(errorText);
-      break;
     case "AUTHOR_URL_INVALID":
       throw new TelAuthorUrlInvalid(errorText);
-      break;
     case "INVALID_REQUEST":
       throw new TelInvalidRequest(errorText);
-      break;
     case "INTERNAL_ERROR":
       throw new TelInternalError(errorText);
-      break;
     default:
       throw new TelegraphError(errorText);
   }
@@ -54,10 +44,10 @@ function domToNode(domNode) {
   if (domNode.nodeType != domNode.ELEMENT_NODE) {
     return false;
   }
-  var nodeElement = {};
+  const nodeElement = {};
   nodeElement.tag = domNode.tagName.toLowerCase();
-  for (var i = 0; i < domNode.attributes.length; i++) {
-    var attr = domNode.attributes[i];
+  for (let i = 0; i < domNode.attributes.length; i++) {
+    const attr = domNode.attributes[i];
     if (attr.name == "href" || attr.name == "src") {
       if (!nodeElement.attrs) {
         nodeElement.attrs = {};
@@ -67,8 +57,8 @@ function domToNode(domNode) {
   }
   if (domNode.childNodes.length > 0) {
     nodeElement.children = [];
-    for (var i = 0; i < domNode.childNodes.length; i++) {
-      var child = domNode.childNodes[i];
+    for (let i = 0; i < domNode.childNodes.length; i++) {
+      const child = domNode.childNodes[i];
       nodeElement.children.push(domToNode(child));
     }
   }
@@ -79,20 +69,21 @@ function nodeToDom(node) {
   if (typeof node === "string" || node instanceof String) {
     return document.createTextNode(node);
   }
+  let domNode;
   if (node.tag) {
-    var domNode = document.createElement(node.tag);
+    domNode = document.createElement(node.tag);
     if (node.attrs) {
-      for (var name in node.attrs) {
-        var value = node.attrs[name];
+      for (const name in node.attrs) {
+        const value = node.attrs[name];
         domNode.setAttribute(name, value);
       }
     }
   } else {
-    var domNode = document.createDocumentFragment();
+    domNode = document.createDocumentFragment();
   }
   if (node.children) {
-    for (var i = 0; i < node.children.length; i++) {
-      var child = node.children[i];
+    for (let i = 0; i < node.children.length; i++) {
+      const child = node.children[i];
       domNode.appendChild(nodeToDom(child));
     }
   }
@@ -100,7 +91,7 @@ function nodeToDom(node) {
 }
 
 /**
- * Telegraph API Client
+ * Telegraph API Client using GET requests to avoid CORS issues
  * @class
  * @see https://telegra.ph/api
  */
@@ -116,25 +107,44 @@ class Telegraph {
   }
 
   /**
-   * Internal API request method
+   * Internal API request method using GET
    * @private
    * @param {string} action - API method name
-   * @param {Object} [json={}] - Request payload
+   * @param {Object} [params={}] - Request parameters
    * @param {string} [path=""] - Additional path for the request
    * @returns {Promise<Object>} - API response
    * @throws {Error} - On API error or network failure
    */
-  async _api(action, json = {}, path = "") {
-    const url = `https://api.${this.domain}/${action}/${path}`.replace(/\/+$/, "");
-    if (this.accessToken && !json.access_token) {
-      json.access_token = this.accessToken;
+  async _api(action, params = {}, path = "") {
+    // Add access token if available
+    if (this.accessToken && !params.access_token) {
+      params.access_token = this.accessToken;
     }
+
+    // Convert content arrays to JSON strings for GET requests
+    if (params.content) {
+      params.content = JSON.stringify(params.content);
+    }
+
+    // Convert fields arrays to JSON strings
+    if (params.fields) {
+      params.fields = JSON.stringify(params.fields);
+    }
+
+    // Build query string
+    const query = new URLSearchParams();
+    for (const key in params) {
+      if (params[key] !== null && params[key] !== undefined) {
+        query.append(key, params[key]);
+      }
+    }
+
+    const url = `https://api.${this.domain}/${action}/${path}?${query}`.replace(/\/+$/, "");
 
     try {
       const response = await fetch(url, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(json),
+        method: "GET",
+        headers: { Accept: "application/json" },
       });
 
       const responseJson = await response.json();
@@ -158,11 +168,11 @@ class Telegraph {
    * @returns {Promise<Object>} - Account info with access_token
    */
   async createAccount(shortName, authorName = null, authorUrl = null, replaceToken = true) {
-    const data = { short_name: shortName };
-    if (authorName) data.author_name = authorName;
-    if (authorUrl) data.author_url = authorUrl;
+    const params = { short_name: shortName };
+    if (authorName) params.author_name = authorName;
+    if (authorUrl) params.author_url = authorUrl;
 
-    const result = await this._api("createAccount", data);
+    const result = await this._api("createAccount", params);
 
     if (replaceToken) this.accessToken = result.access_token;
     return result;
@@ -174,8 +184,8 @@ class Telegraph {
    * @returns {Promise<Object>} - Account information
    */
   async getAccountInfo(fields = null) {
-    const data = fields ? { fields: JSON.stringify(fields) } : {};
-    return await this._api("getAccountInfo", data);
+    const params = fields ? { fields } : {};
+    return await this._api("getAccountInfo", params);
   }
 
   /**
@@ -186,12 +196,12 @@ class Telegraph {
    * @returns {Promise<Object>} - Updated account info
    */
   async editAccountInfo(shortName = null, authorName = null, authorUrl = null) {
-    const data = {};
-    if (shortName) data.short_name = shortName;
-    if (authorName) data.author_name = authorName;
-    if (authorUrl) data.author_url = authorUrl;
+    const params = {};
+    if (shortName) params.short_name = shortName;
+    if (authorName) params.author_name = authorName;
+    if (authorUrl) params.author_url = authorUrl;
 
-    return await this._api("editAccountInfo", data);
+    return await this._api("editAccountInfo", params);
   }
 
   /**
@@ -219,15 +229,15 @@ class Telegraph {
       content = domToNode(content);
     }
 
-    const data = {
+    const params = {
       title,
       content: Array.isArray(content) ? content : JSON.parse(content),
     };
-    if (authorName) data.author_name = authorName;
-    if (authorUrl) data.author_url = authorUrl;
-    if (returnContent) data.return_content = returnContent;
+    if (authorName) params.author_name = authorName;
+    if (authorUrl) params.author_url = authorUrl;
+    if (returnContent) params.return_content = returnContent;
 
-    return await this._api("createPage", data);
+    return await this._api("createPage", params);
   }
 
   /**
@@ -238,8 +248,8 @@ class Telegraph {
    * @returns {Promise<Object>} - Page information
    */
   async getPage(path, returnContent = true, contentToHtml = false) {
-    const data = returnContent ? { return_content: returnContent } : {};
-    const result = await this._api("getPage", data, path);
+    const params = returnContent ? { return_content: returnContent } : {};
+    const result = await this._api("getPage", params, path);
 
     if (returnContent && contentToHtml) {
       result.content = nodeToDom(result.content);
@@ -268,18 +278,18 @@ class Telegraph {
     contentIsHtml = false
   ) {
     if (contentIsHtml && typeof content === "string") {
-      content = this._htmlToNodes(content);
+      content = domToNode(content);
     }
 
-    const data = {
+    const params = {
       title,
       content: Array.isArray(content) ? content : JSON.parse(content),
     };
-    if (authorName) data.author_name = authorName;
-    if (authorUrl) data.author_url = authorUrl;
-    if (returnContent) data.return_content = returnContent;
+    if (authorName) params.author_name = authorName;
+    if (authorUrl) params.author_url = authorUrl;
+    if (returnContent) params.return_content = returnContent;
 
-    return await this._api("editPage", data, path);
+    return await this._api("editPage", params, path);
   }
 
   /**
@@ -302,13 +312,13 @@ class Telegraph {
    * @returns {Promise<Object>} - Views statistics
    */
   async getViews(path, year = null, month = null, day = null, hour = null) {
-    const data = { path };
-    if (year !== null) data.year = year;
-    if (month !== null) data.month = month;
-    if (day !== null) data.day = day;
-    if (hour !== null) data.hour = hour;
+    const params = { path };
+    if (year !== null) params.year = year;
+    if (month !== null) params.month = month;
+    if (day !== null) params.day = day;
+    if (hour !== null) params.hour = hour;
 
-    return await this._api("getViews", data, path);
+    return await this._api("getViews", params, path);
   }
 
   /**
@@ -337,10 +347,10 @@ class Telegraph {
 
       if (Array.isArray(result)) {
         const error = result[0]?.error;
-        if (error) this._parseError(error);
+        if (error) parseTelegraphError(error);
         return result;
       } else if (result.error) {
-        this._parseError(result.error);
+        parseTelegraphError(result.error);
       }
 
       return result;

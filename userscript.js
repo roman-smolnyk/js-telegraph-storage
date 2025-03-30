@@ -1,12 +1,14 @@
 // ==UserScript==
-// @name         Telegraph
+// @name         Telegraph Storage
 // @namespace    http://tampermonkey.net/
 // @version      0.1
-// @description  Add "Pinguin" button to download movie
+// @description  uses Telegra.ph as storage
 // @author       poma23324
-// @include      https://*/*
+// @include      https://telegra.ph/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=telegra.ph
-// @require
+// @require      https://cdn.jsdelivr.net/gh/roman-smolnyk/js-telegraph-storage@v0.0.1/telegraph.min.js
+// @require      https://cdn.jsdelivr.net/gh/roman-smolnyk/js-telegraph-storage@v0.0.1/ciphers.min.js
+// @require      https://cdn.jsdelivr.net/gh/roman-smolnyk/js-telegraph-storage@v0.0.1/telegraph_storage.min.js
 // @grant        none
 // ==/UserScript==
 
@@ -14,8 +16,13 @@
   "use strict";
   console.log("Telegraph");
 
-  let storage = new TelegraphStorage();
-  await storage.register();
-  console.log(storage.telegraph.accessToken);
-  console.log(await storage.list());
+  const telegraphStorage = new TelegraphStorage();
+
+  window.telegraphStorage = telegraphStorage;
+
+  await telegraphStorage.register();
+  console.log(telegraphStorage.telegraph.accessToken);
+  console.log(await telegraphStorage.list());
+  await telegraphStorage.set("zebra", { hello: "world" });
+  await telegraphStorage.get("zebra");
 })();

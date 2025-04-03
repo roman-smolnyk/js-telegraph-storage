@@ -27,17 +27,15 @@ class TelegraphStorage {
     return result.pages.map((page) => page.title);
   };
 
-  get = async (key = null, path = null) => {
-    // path to the page of other user as it can be fetched without token
+  get = async (key, defaultValue = null) => {
+    // path to the page of the other user as it can be fetched without token
     // console.trace("TelegraphStorage.get()");
-    if (key) {
-      const page = await this._getPageByTitle(key);
-      if (!page) {
-        throw new KeyIsMissing(`Key with name '${key}' is missing`);
-      }
-      path = page.path;
+    const page = await this._getPageByTitle(key);
+    if (!page) {
+      return defaultValue;
     }
-    const result = await this.telegraph.getPage(path, true);
+
+    const result = await this.telegraph.getPage(page.path, true);
     const data = await this._parseData(result.content);
     return data;
   };
@@ -51,6 +49,10 @@ class TelegraphStorage {
     const content = await this._prepareData(data);
     const result = await this.telegraph.editPage(page.path, key, content);
     return result;
+  };
+
+  static getForeign = async (path) => {
+    // TODO: Create functionality to fetch data from other users's page without token
   };
 
   _prepareData = async (data) => {
@@ -93,4 +95,3 @@ class TelegraphStorage {
     return updatedPage;
   };
 }
-

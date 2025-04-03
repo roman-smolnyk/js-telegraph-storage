@@ -18,10 +18,11 @@
 
   const telegraphStorage = new TelegraphStorage();
 
-  window.telegraphStorage = telegraphStorage;
+  unsafeWindow.telegraphStorage = telegraphStorage;
 
-  await telegraphStorage.register();
-  console.log(telegraphStorage.telegraph.accessToken);
+  let accessToken = await telegraphStorage.register();
+  accessToken = telegraphStorage.telegraph.accessToken;
+  console.log(accessToken);
   console.log(await telegraphStorage.list());
   await telegraphStorage.set("zebra", { hello: "world" });
   await telegraphStorage.get("zebra");

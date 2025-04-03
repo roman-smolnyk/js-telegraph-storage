@@ -111,7 +111,7 @@ class Telegraph {
       params.fields = JSON.stringify(params.fields);
     }
 
-    console.debug("Telegraph._api -> params", params);
+    // console.debug("Telegraph._api -> params", params);
 
     const query = new URLSearchParams();
     for (const key in params) {
@@ -120,7 +120,7 @@ class Telegraph {
       }
     }
 
-    console.debug("Telegraph._api -> query", query);
+    // console.debug("Telegraph._api -> query", query);
 
     const url = `https://api.${this.domain}/${action}/${path}?${query.toString()}`;
 
@@ -130,11 +130,11 @@ class Telegraph {
         headers: { Accept: "application/json" },
       });
 
-      console.debug("Telegraph._api -> response", response);
+      // console.debug("Telegraph._api -> response", response);
 
       const responseJson = await response.json();
 
-      console.debug("Telegraph._api -> responseJson", responseJson);
+      // console.debug("Telegraph._api -> responseJson", responseJson);
 
       if (responseJson.ok) {
         return responseJson.result;

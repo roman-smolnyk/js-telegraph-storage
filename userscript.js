@@ -6,9 +6,9 @@
 // @author       poma23324
 // @include      https://telegra.ph/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=telegra.ph
-// @require      https://cdn.jsdelivr.net/gh/roman-smolnyk/js-telegraph-storage@v0.0.4/telegraph.min.js
-// @require      https://cdn.jsdelivr.net/gh/roman-smolnyk/js-telegraph-storage@v0.0.4/ciphers.min.js
-// @require      https://cdn.jsdelivr.net/gh/roman-smolnyk/js-telegraph-storage@v0.0.4/telegraph_storage.min.js
+// @require      https://cdn.jsdelivr.net/gh/roman-smolnyk/js-telegraph-storage@v0.0.5/telegraph.min.js
+// @require      https://cdn.jsdelivr.net/gh/roman-smolnyk/js-telegraph-storage@v0.0.5/ciphers.min.js
+// @require      https://cdn.jsdelivr.net/gh/roman-smolnyk/js-telegraph-storage@v0.0.5/telegraph_storage.min.js
 // @grant        none
 // ==/UserScript==
 
@@ -18,7 +18,7 @@
 
   const telegraphStorage = new TelegraphStorage();
 
-  unsafeWindow.telegraphStorage = telegraphStorage;
+  window.telegraphStorage = telegraphStorage;
   await telegraphStorage.init();
   let accessToken = telegraphStorage.accessToken;
   console.log(accessToken);

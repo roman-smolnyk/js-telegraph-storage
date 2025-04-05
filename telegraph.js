@@ -216,6 +216,23 @@ class Telegraph {
     return result;
   };
 
+  getForeignPage = async (path) => {
+    const url = `https://api.telegra.ph/getPage/${path}?return_content=true`;
+
+    try {
+      const response = await fetch(url);
+      const responseJson = await response.json();
+
+      if (responseJson.ok) {
+        return responseJson.result;
+      } else {
+        throw new Error(responseJson.error);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   editPage = async (
     path,
     title,

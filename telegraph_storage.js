@@ -61,7 +61,7 @@ class TelegraphStorage {
   };
 
   static getForeign = async (path) => {
-    const result = this.telegraph.getPage(path);
+    const result = await this.telegraph.getForeignPage(path);
     const data = await this._parseData(result.content);
     return data;
   };

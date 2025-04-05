@@ -61,7 +61,9 @@ class TelegraphStorage {
   };
 
   static getForeign = async (path) => {
-    // TODO: Create functionality to fetch data from other users's page without token
+    const result = this.telegraph.getPage(path);
+    const data = await this._parseData(result.content);
+    return data;
   };
 
   _prepareData = async (data) => {

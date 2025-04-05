@@ -6,9 +6,9 @@
 // @author       poma23324
 // @include      https://telegra.ph/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=telegra.ph
-// @require      https://cdn.jsdelivr.net/gh/roman-smolnyk/js-telegraph-storage@v0.0.1/telegraph.min.js
-// @require      https://cdn.jsdelivr.net/gh/roman-smolnyk/js-telegraph-storage@v0.0.1/ciphers.min.js
-// @require      https://cdn.jsdelivr.net/gh/roman-smolnyk/js-telegraph-storage@v0.0.1/telegraph_storage.min.js
+// @require      https://cdn.jsdelivr.net/gh/roman-smolnyk/js-telegraph-storage@v0.0.4/telegraph.min.js
+// @require      https://cdn.jsdelivr.net/gh/roman-smolnyk/js-telegraph-storage@v0.0.4/ciphers.min.js
+// @require      https://cdn.jsdelivr.net/gh/roman-smolnyk/js-telegraph-storage@v0.0.4/telegraph_storage.min.js
 // @grant        none
 // ==/UserScript==
 
@@ -19,11 +19,12 @@
   const telegraphStorage = new TelegraphStorage();
 
   unsafeWindow.telegraphStorage = telegraphStorage;
-
-  let accessToken = await telegraphStorage.register();
-  accessToken = telegraphStorage.telegraph.accessToken;
+  await telegraphStorage.init();
+  let accessToken = telegraphStorage.accessToken;
   console.log(accessToken);
   console.log(await telegraphStorage.list());
   await telegraphStorage.set("zebra", { hello: "world" });
   await telegraphStorage.get("zebra");
+
+  console.log(await telegraphStorage.getForeign("Telegram-Themes-FAQ"));
 })();

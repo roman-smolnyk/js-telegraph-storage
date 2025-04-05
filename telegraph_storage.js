@@ -27,6 +27,7 @@ class TelegraphStorage {
       }
       this.accessToken = accessToken;
     }
+    this.telegraph = new Telegraph(this.accessToken);
     localStorage.setItem(TelegraphStorage.KEY, this.accessToken);
   };
 
@@ -60,7 +61,7 @@ class TelegraphStorage {
     return result;
   };
 
-  static getForeign = async (path) => {
+  getForeign = async (path) => {
     const result = await this.telegraph.getForeignPage(path);
     const data = await this._parseData(result.content);
     return data;

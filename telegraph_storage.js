@@ -3,22 +3,31 @@ class KeyIsMissing extends TelegraphStorageError {}
 class DataIsTooLong extends TelegraphStorageError {}
 
 class TelegraphStorage {
+  static KEY = TelegraphStorage.name;
   static DATA_LENGTH_LIMIT = 65500;
 
   constructor(accessToken = null, cipher = new DumbCipher()) {
     // console.trace("TelegraphStorage.constructor()");
     if (accessToken) {
+      this.accessToken = accessToken;
       this.telegraph = new Telegraph(accessToken);
     } else {
+      this.accessToken = null;
       this.telegraph = new Telegraph();
     }
     this.cipher = cipher;
   }
 
-  register = async () => {
-    // console.trace("TelegraphStorage.register()");
-    const result = await this.telegraph.createAccount(crypto.randomUUID().slice(0, 8));
-    return result.access_token;
+  init = async () => {
+    if (!this.accessToken) {
+      let accessToken = localStorage.getItem(TelegraphStorage.KEY);
+      if (!accessToken) {
+        const result = await this.telegraph.createAccount(crypto.randomUUID().slice(0, 8));
+        accessToken = result.access_token;
+      }
+      this.accessToken = accessToken;
+    }
+    localStorage.setItem(TelegraphStorage.KEY, this.accessToken);
   };
 
   list = async () => {

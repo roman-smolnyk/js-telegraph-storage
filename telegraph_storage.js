@@ -1,12 +1,12 @@
 class TelegraphStorageError extends Error {}
 class KeyIsMissing extends TelegraphStorageError {}
-class DataIsTooLong extends TelegraphStorageError {}
+class DataIsTooLong extends TelegraphStorageError {} // TODO
 
 class TelegraphStorage {
   static KEY = TelegraphStorage.name;
-  static DATA_LENGTH_LIMIT = 65500;
+  static DATA_LENGTH_LIMIT = 65500; // TODO
 
-  constructor(accessToken = null, cipher = new DumbCipher()) {
+  constructor(accessToken = null, cipher = null) {
     // console.trace("TelegraphStorage.constructor()");
     if (accessToken) {
       this.accessToken = accessToken;
@@ -15,7 +15,19 @@ class TelegraphStorage {
       this.accessToken = null;
       this.telegraph = new Telegraph();
     }
-    this.cipher = cipher;
+    if (this.cipher) {
+      this.cipher = cipher;
+    } else {
+      this.cipher = {
+        encrypt: (data) => {
+          return data;
+        },
+
+        decrypt: (data) => {
+          return data;
+        },
+      };
+    }
   }
 
   init = async () => {

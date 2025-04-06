@@ -9,6 +9,7 @@ class TelAuthorNameTooLong extends TelegraphError {}
 class TelAuthorUrlInvalid extends TelegraphError {}
 class TelInvalidRequest extends TelegraphError {}
 class TelInternalError extends TelegraphError {}
+class TelFloodError extends TelegraphError {} // TODO
 
 const parseTelegraphError = (errorText) => {
   switch (errorText) {
